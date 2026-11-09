@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RTN SUPPORT • VIP License & HWID Control Hub</title>
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --bg-dark: #070d18;
+      --bg-card: rgba(15, 23, 42, 0.88);
+      --bg-card-hover: rgba(30, 41, 59, 0.95);
+      --bg-input: #0b1220;
+      --border-color: rgba(51, 65, 85, 0.65);
+      --border-glow: rgba(56, 189, 248, 0.45);
+      --primary: #0284c7;
+      --primary-hover: #0ea5e9;
+      --primary-glow: rgba(14, 165, 233, 0.3);
+      --accent: #38bdf8;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --accent-yellow: #f59e0b;
+      --accent-purple: #a855f7;
+      --whatsapp-color: #22c55e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 10% 15%, rgba(2, 132, 199, 0.16) 0%, transparent 40%),
+        radial-gradient(circle at 90% 85%, rgba(16, 185, 129, 0.12) 0%, transparent 40%),
+        linear-gradient(180deg, #070d18 0%, #030712 100%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: var(--font-main);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: #070d18; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+    /* ========================================================================= */
+    /* ADMIN PASSCODE GATE (PASS: 2026) */
+    /* ========================================================================= */
+    #authOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 7, 18, 0.95);
+      backdrop-filter: blur(18px);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .auth-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85), 0 0 50px rgba(2, 132, 199, 0.25);
+      border-radius: var(--radius-lg);
+      padding: 38px 32px;
+      width: 100%;
+      max-width: 430px;
+      text-align: center;
+    }
+
+    .auth-card .logo-badge {
+      width: 66px;
+      height: 66px;
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      border-radius: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 24px rgba(2, 132, 199, 0.45);
+    }
+
+    .auth-card h2 {
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 6px;
+      color: #ffffff;
+      letter-spacing: -0.3px;
+    }
+
+    .auth-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+    }
+
+    .auth-card input {
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      color: #fff;
+      font-size: 20px;
+      font-family: var(--font-mono);
+      text-align: center;
+      letter-spacing: 4px;
+      margin-bottom: 14px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .auth-card input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 18px var(--primary-glow);
+    }
+
+    .remember-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .remember-row input {
+      width: 15px;
+      height: 15px;
+      margin: 0;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    /* Container */
+    .app-container {
+      width: 100%;
+      max-width: 1460px;
+      margin: 0 auto;
+      padding: 16px 22px 60px;
+    }
+
+    /* Navbar */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      backdrop-filter: blur(14px);
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #0284c7, #10b981);
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(2, 132, 199, 0.4);
+    }
+
+    .brand-text h1 {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.3px;
+      color: #ffffff;
+    }
+
+    .brand-text h1 span {
+      color: var(--accent);
+    }
+
+    .brand-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    .dev-badge {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      font-weight: 800;
+      padding: 1px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 14px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(16, 185, 129, 0.14);
+      color: var(--accent-green);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s;
+    }
+
+    .status-pill:hover {
+      background: rgba(16, 185, 129, 0.22);
+    }
+
+    .status-pill.syncing {
+      background: rgba(245, 158, 11, 0.14);
+      color: var(--accent-yellow);
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+
+    .status-pill.error {
+      background: rgba(239, 68, 68, 0.14);
+      color: var(--accent-red);
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 9px 16px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 13px;
+      font-family: inherit;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+      text-decoration: none;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.38);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0ea5e9, #3b82f6);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(2, 132, 199, 0.5);
+    }
+
+    .btn-whatsapp {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
+    }
+
+    .btn-whatsapp:hover {
+      background: #22c55e;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(30, 41, 59, 0.75);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+    }
+
+    .btn-secondary:hover {
+      background: #1e293b;
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .btn-sm {
+      padding: 6px 11px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
+
+    /* Top Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-glow);
+    }
+
+    .stat-card .stat-icon {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      color: rgba(148, 163, 184, 0.22);
+    }
+
+    .stat-card .stat-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .stat-card .stat-val {
+      font-size: 28px;
+      font-weight: 900;
+      font-family: var(--font-mono);
+      color: #ffffff;
+    }
+
+    /* Main Workspace 2-Column Grid */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    @media (max-width: 1080px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      backdrop-filter: blur(14px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.45);
+      flex-wrap: wrap;
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15.5px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .card-title i {
+      color: var(--accent);
+    }
+
+    /* Form Controls */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-size: 13.5px;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 14px var(--primary-glow);
+    }
+
+    /* Fast 1-Click Duration Presets */
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .preset-btn {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: 7px 4px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+      user-select: none;
+    }
+
+    .preset-btn:hover, .preset-btn.active {
+      background: #0284c7;
+      color: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 0 10px rgba(14, 165, 233, 0.35);
+    }
+
+    /* Generated Key Alert Box */
+    .generated-banner {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px dashed rgba(16, 185, 129, 0.5);
+      border-radius: var(--radius-md);
+      padding: 15px;
+      margin-top: 18px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .key-box-code {
+      font-family: var(--font-mono);
+      font-size: 15.5px;
+      font-weight: 800;
+      color: #34d399;
+      background: #060c18;
+      padding: 11px 14px;
+      border-radius: 8px;
+      text-align: center;
+      margin: 9px 0;
+      word-break: break-all;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      user-select: all;
+    }
+
+    /* Table Toolbar */
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .search-input-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 240px;
+    }
+
+    .search-input-wrap input {
+      width: 100%;
+      padding: 9px 12px 9px 36px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-input-wrap i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .filter-pills {
+      display: flex;
+      background: rgba(6, 12, 24, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 3px;
+      gap: 3px;
+      flex-wrap: wrap;
+    }
+
+    .filter-pill {
+      padding: 5px 11px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+    }
+
+    .filter-pill span.badge-num {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: 10px;
+    }
+
+    .filter-pill.active {
+      background: #1e293b;
+      color: var(--accent);
+    }
+
+    .filter-pill.active span.badge-num {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* Table */
+    .table-responsive {
+      overflow-x: auto;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 12.5px;
+    }
+
+    th {
+      background: #0f172a;
+      color: var(--text-muted);
+      font-weight: 800;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-color);
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 11px 14px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.32);
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    tr:hover td {
+      background: rgba(30, 41, 59, 0.4);
+    }
+
+    /* Compact View Mode */
+    .compact-mode td {
+      padding: 7px 10px;
+      font-size: 12px;
+    }
+
+    .compact-mode th {
+      padding: 8px 10px;
+    }
+
+    .key-pill {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--accent);
+      background: rgba(56, 189, 248, 0.12);
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.15s;
+    }
+
+    .key-pill:hover {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: var(--accent);
+    }
+
+    .hwid-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #cbd5e1;
+      background: #090e17;
+      padding: 3px 7px;
+      border-radius: 5px;
+      border: 1px solid #1e293b;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .hwid-pill.unbound {
+      color: var(--accent-yellow);
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+
+    .status-tag {
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 10.5px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .status-tag.active {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-green);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .status-tag.blocked {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--accent-red);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+
+    .status-tag.expired {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-yellow);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .action-icons-wrap {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      justify-content: flex-end;
+    }
+
+    .action-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .action-btn:hover {
+      background: #1e293b;
+      color: #fff;
+      border-color: var(--border-color);
+    }
+
+    .action-btn.danger:hover {
+      background: rgba(239, 68, 68, 0.22);
+      color: var(--accent-red);
+      border-color: rgba(239, 68, 68, 0.45);
+    }
+
+    .action-btn.wa:hover {
+      background: rgba(34, 197, 94, 0.22);
+      color: var(--whatsapp-color);
+      border-color: rgba(34, 197, 94, 0.45);
+    }
+
+    /* Modal Backdrop */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 26px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9);
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      background: #0f172a;
+      border: 1px solid var(--accent);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      z-index: 100000;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================= -->
+  <!-- ADMIN GATE OVERLAY (MASTER PASS: 2026) -->
+  <!-- ========================================================================= -->
+  <div id="authOverlay">
+    <div class="auth-card">
+      <div class="logo-badge">
+        <i data-lucide="shield-check" style="width: 34px; height: 34px; color: #fff;"></i>
+      </div>
+      <h2>RTN SUPPORT Admin</h2>
+      <p>Enter Master Password to access VIP Control Hub (<b>Pass: 2026</b>)</p>
+      
+      <form id="passForm" onsubmit="event.preventDefault(); verifyAdminPass();">
+        <input type="password" id="adminPassInput" placeholder="2026" autofocus required autocomplete="off">
+        
+        <label class="remember-row">
+          <input type="checkbox" id="rememberMeCheck" checked>
+          <span>Remember login on this browser</span>
+        </label>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px;">
+          <span>Unlock Admin Panel</span>
+          <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+        </button>
+
+        <div id="authErrorMsg" style="color: var(--accent-red); font-size: 12.5px; margin-top: 12px; font-weight: 700; display: none;">
+          ❌ Incorrect Passcode! Master Password is: <b>2026</b>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN APP CONTAINER -->
+  <!-- ========================================================================= -->
+  <div class="app-container">
+    
+    <!-- Top Navbar -->
+    <header class="navbar">
+      <div class="brand-section">
+        <div class="brand-icon">
+          <i data-lucide="shield-alert" style="width: 24px; height: 24px;"></i>
+        </div>
+        <div class="brand-text">
+          <h1>RTN <span>SUPPORT</span> • VIP License Hub</h1>
+          <div class="brand-meta">
+            <span>Developer: <b style="color: #f59e0b;">RATAN VAI</b> (@ratanvai)</span>
+            <span>•</span>
+            <span class="dev-badge">Cloud v2.0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <!-- Live Cloud Status Indicator -->
+        <div id="cloudStatusPill" class="status-pill" onclick="fetchFirestoreLicenses()" title="Click to refresh cloud licenses">
+          <span class="status-dot"></span>
+          <span id="cloudStatusText">Connecting Cloud...</span>
+        </div>
+
+        <a href="https://chat.whatsapp.com/F9Jt1LIBdsoKzAWUDqRBE2" target="_blank" class="btn btn-whatsapp btn-sm" title="Join Official WhatsApp Group">
+          <i data-lucide="message-circle" style="width: 14px; height: 14px;"></i>
+          <span>WhatsApp Group</span>
+        </a>
+
+        <button class="btn btn-secondary btn-sm" onclick="fetchFirestoreLicenses()" title="Reload from Firestore">
+          <i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i>
+          <span>Refresh</span>
+        </button>
+
+        <button class="btn btn-secondary btn-sm" onclick="lockAdminSession()" title="Lock panel">
+          <i data-lucide="log-out" style="width: 14px; height: 14px;"></i>
+          <span>Lock</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Top Stats Counter Cards -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <i data-lucide="key" class="stat-icon" style="width: 32px; height: 32px;"></i>
+        <div class="stat-label">TOTAL VIP LICENSES</div>
+        <div class="stat-val" id="statTotal">0</div>
+      </div>
+      <div class="stat-card">
+        <i data-lucide="check-circle" class="stat-icon" style="width: 32px; height: 32px; color: var(--accent-green);"></i>
+        <div class="stat-label">ACTIVE MEMBERS</div>
+        <div class="stat-val" id="statActive" style="color: var(--accent-green);">0</div>
+      </div>
+      <div class="stat-card">
+        <i data-lucide="laptop" class="stat-icon" style="width: 32px; height: 32px; color: var(--accent);"></i>
+        <div class="stat-label">HWID BOUND DEVICES</div>
+        <div class="stat-val" id="statBound" style="color: var(--accent);">0</div>
+      </div>
+      <div class="stat-card">
+        <i data-lucide="clock" class="stat-icon" style="width: 32px; height: 32px; color: var(--accent-yellow);"></i>
+        <div class="stat-label">EXPIRED / REVOKED</div>
+        <div class="stat-val" id="statExpired" style="color: var(--accent-red);">0</div>
+      </div>
+    </section>
+
+    <!-- Main Workspace 2-Column Grid -->
+    <div class="main-grid">
+
+      <!-- LEFT COLUMN: Easy License Generator Form -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i>
+            <span>Generate Member License</span>
+          </div>
+          <button class="btn btn-secondary btn-sm" type="button" onclick="randomizeKeyInput()" title="Generate Random Key">
+            <i data-lucide="shuffle" style="width: 13px; height: 13px;"></i>
+            <span>New Key</span>
+          </button>
+        </div>
+
+        <form id="licenseGenForm" onsubmit="event.preventDefault(); deployLicenseToCloud();">
+          
+          <!-- Key Prefix -->
+          <div class="form-group">
+            <div class="form-label">
+              <span>ADMIN PREFIX</span>
+              <span style="font-size: 10px; color: var(--accent);">Official: RATAN_VAI--</span>
+            </div>
+            <select id="prefixSelect" class="form-control" onchange="updateKeyPreview()">
+              <option value="RATAN_VAI--" selected>RATAN_VAI-- (Official Developer)</option>
+              <option value="VIP--">VIP-- (VIP Member)</option>
+              <option value="RTN--">RTN-- (Standard RTN)</option>
+              <option value="ADMIN--">ADMIN-- (Admin Access)</option>
+              <option value="">None (Plain Key)</option>
+            </select>
+          </div>
+
+          <!-- Customer / Member Name -->
+          <div class="form-group">
+            <div class="form-label">
+              <span>MEMBER / CLIENT NAME</span>
+              <span style="font-size: 10px; color: var(--text-muted);">Required</span>
+            </div>
+            <input type="text" id="custNameInput" class="form-control" placeholder="e.g. Ratan Vai / Member #12" required>
+          </div>
+
+          <!-- Validity Plan & Duration with Fast 1-Click Buttons -->
+          <div class="form-group">
+            <div class="form-label">
+              <span>VALIDITY DURATION</span>
+              <span id="selectedDaysLabel" style="color: var(--accent); font-weight: 800;">30 Days VIP</span>
+            </div>
+            <select id="durationSelect" class="form-control" onchange="syncPresetButtons()">
+              <option value="1">1 Day (24h Trial)</option>
+              <option value="7">7 Days (1 Week Pro)</option>
+              <option value="15">15 Days (Bi-Weekly Pro)</option>
+              <option value="30" selected>30 Days (1 Month VIP)</option>
+              <option value="60">60 Days (2 Months Pro)</option>
+              <option value="90">90 Days (3 Months Pro)</option>
+              <option value="180">180 Days (6 Months Pro)</option>
+              <option value="365">365 Days (1 Year Pro)</option>
+              <option value="-1">♾️ Lifetime VIP (Unlimited)</option>
+            </select>
+
+            <!-- 1-Click Duration Presets -->
+            <div class="preset-grid">
+              <button type="button" class="preset-btn" onclick="selectDurationPreset(1, this)">1D Trial</button>
+              <button type="button" class="preset-btn" onclick="selectDurationPreset(7, this)">7 Days</button>
+              <button type="button" class="preset-btn active" onclick="selectDurationPreset(30, this)">30 Days</button>
+              <button type="button" class="preset-btn" onclick="selectDurationPreset(-1, this)">♾️ Lifetime</button>
+            </div>
+          </div>
+
+          <!-- Device HWID Binding -->
+          <div class="form-group">
+            <div class="form-label">
+              <span>DEVICE HWID LOCK</span>
+              <span style="font-size: 10px; color: var(--accent-green);">Auto-binds on 1st login if empty</span>
+            </div>
+            <input type="text" id="hwidInput" class="form-control" placeholder="e.g. RTN-B3A8-B74E-C22B (or leave empty)" style="font-family: var(--font-mono); font-size: 12px;">
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">
+              💡 Member Login পেজ থেকে HWID দিলে এখানে পেস্ট করুন। ফাঁকা রাখলে মেম্বার প্রথমবার রান দিলে স্বয়ংক্রিয়ভাবে তার পিসির সাথে লক হয়ে যাবে।
+            </div>
+          </div>
+
+          <!-- Key Live Preview & Editor -->
+          <div class="form-group">
+            <div class="form-label">
+              <span>FINAL LICENSE KEY</span>
+              <span style="font-size: 10px; color: var(--text-muted);">Auto-generated</span>
+            </div>
+            <input type="text" id="generatedKeyInput" class="form-control" style="font-family: var(--font-mono); font-weight: 700; color: var(--accent); letter-spacing: 0.5px;">
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="btnSubmitKey" style="width: 100%; padding: 12px; margin-top: 6px;">
+            <i data-lucide="cloud-lightning" style="width: 16px; height: 16px;"></i>
+            <span>Deploy to Cloud & Activate</span>
+          </button>
+        </form>
+
+        <!-- Banner for newly generated key -->
+        <div class="generated-banner" id="genSuccessBanner">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="color: var(--accent-green); font-weight: 800; font-size: 12px;">🎉 LICENSE GENERATED!</span>
+            <button class="action-btn" onclick="document.getElementById('genSuccessBanner').style.display='none'" title="Close">✕</button>
+          </div>
+          <div class="key-box-code" id="bannerKeyText">RATAN_VAI--RTN-XXXX-XXXX</div>
+          <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <button class="btn btn-primary btn-sm" style="flex: 1;" onclick="copyBannerKey()">
+              <i data-lucide="copy" style="width: 13px; height: 13px;"></i>
+              <span>Copy Key</span>
+            </button>
+            <button class="btn btn-whatsapp btn-sm" style="flex: 1.3;" onclick="copyWhatsAppFormatForCurrent()">
+              <i data-lucide="message-circle" style="width: 13px; height: 13px;"></i>
+              <span>WhatsApp Message</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: Active Members & Licenses Table -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <i data-lucide="users" style="width: 18px; height: 18px;"></i>
+            <span>Member Licenses Database</span>
+            <span id="licenseCountBadge" style="background: rgba(56, 189, 248, 0.15); color: var(--accent); padding: 2px 8px; border-radius: 12px; font-size: 11px;">0 loaded</span>
+          </div>
+
+          <div style="display: flex; gap: 6px;">
+            <button class="btn btn-secondary btn-sm" onclick="toggleDensity()" id="densityBtn" title="Switch Compact / Comfortable view">
+              <i data-lucide="align-justify" style="width: 13px; height: 13px;"></i>
+              <span id="densityText">Compact</span>
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="exportCSV()" title="Export all members to CSV Excel file">
+              <i data-lucide="download" style="width: 13px; height: 13px;"></i>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Table Toolbar: Search & Filter Tabs -->
+        <div class="table-toolbar">
+          <div class="search-input-wrap">
+            <i data-lucide="search" style="width: 14px; height: 14px;"></i>
+            <input type="text" id="memberSearch" placeholder="Search by member name, key, HWID..." oninput="renderTable()">
+          </div>
+
+          <div class="filter-pills">
+            <button class="filter-pill active" onclick="setFilter('all', this)">All <span class="badge-num" id="fCountAll">0</span></button>
+            <button class="filter-pill" onclick="setFilter('active', this)">Active <span class="badge-num" id="fCountActive">0</span></button>
+            <button class="filter-pill" onclick="setFilter('unbound', this)">Unbound <span class="badge-num" id="fCountUnbound">0</span></button>
+            <button class="filter-pill" onclick="setFilter('expired', this)">Expired <span class="badge-num" id="fCountExpired">0</span></button>
+            <button class="filter-pill" onclick="setFilter('blocked', this)">Blocked <span class="badge-num" id="fCountBlocked">0</span></button>
+          </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="table-responsive" id="tableWrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Member / Client</th>
+                <th>License Key</th>
+                <th>Plan & Expiry</th>
+                <th>Bound HWID</th>
+                <th>Status</th>
+                <th style="text-align: right;">Quick Actions</th>
+              </tr>
+            </thead>
+            <tbody id="memberTableBody">
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 36px;">
+                  ⏳ Loading licenses from Firestore Cloud...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: EDIT MEMBER -->
+  <!-- ========================================================================= -->
+  <div id="editModal" class="modal-backdrop">
+    <div class="modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 16px; font-weight: 800; color: #fff;">✏️ Edit Member License</h3>
+        <button class="action-btn" onclick="closeEditModal()">✕</button>
+      </div>
+
+      <input type="hidden" id="editKeyHidden">
+
+      <div class="form-group">
+        <label class="form-label">MEMBER NAME</label>
+        <input type="text" id="editMemberName" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">BOUND HWID (Leave blank to unlock PC)</label>
+        <input type="text" id="editMemberHwid" class="form-control" style="font-family: var(--font-mono); font-size: 12px;">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">STATUS</label>
+        <select id="editMemberStatus" class="form-control">
+          <option value="active">Active (Full Access)</option>
+          <option value="revoked">Blocked / Revoked (Banned)</option>
+        </select>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn btn-primary" style="flex: 1;" onclick="saveEditMember()">Save Changes</button>
+        <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastBox" class="toast">
+    <i data-lucide="check-circle" style="color: var(--accent-green); width: 17px; height: 17px;"></i>
+    <span id="toastMsg">Action Done!</span>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT APPLICATION CORE -->
+  <!-- ========================================================================= -->
+  <script>
+    // Configuration
+    const MASTER_PASSCODES = ["2026", "admin123", "ratanvai", "1234"];
+    const FIRESTORE_BASE_URL = "https://firestore.googleapis.com/v1/projects/meta-project-7bd88/databases/(default)/documents/licenses";
+    const RTDB_BASE_URL = "https://gpt-sell-default-rtdb.firebaseio.com/licenses";
+
+    let licensesCache = [];
+    let currentFilter = "all";
+    let isCompact = false;
+    let lastGeneratedData = null;
+
+    // --- Admin Authentication Gate (Pass: 2026) ---
+    function checkAdminAuth() {
+      if (sessionStorage.getItem("rtn_admin_auth") === "true" || localStorage.getItem("rtn_admin_auth_persist") === "true") {
+        document.getElementById("authOverlay").style.display = "none";
+        initDashboard();
+      } else {
+        document.getElementById("authOverlay").style.display = "flex";
+        setTimeout(() => document.getElementById("adminPassInput")?.focus(), 150);
+      }
+    }
+
+    function verifyAdminPass() {
+      const input = (document.getElementById("adminPassInput").value || "").trim().toLowerCase();
+      const err = document.getElementById("authErrorMsg");
+      const remember = document.getElementById("rememberMeCheck").checked;
+
+      if (MASTER_PASSCODES.includes(input)) {
+        sessionStorage.setItem("rtn_admin_auth", "true");
+        if (remember) {
+          localStorage.setItem("rtn_admin_auth_persist", "true");
+        }
+        document.getElementById("authOverlay").style.display = "none";
+        initDashboard();
+      } else {
+        err.style.display = "block";
+        document.getElementById("adminPassInput").value = "";
+        document.getElementById("adminPassInput").focus();
+      }
+    }
+
+    function lockAdminSession() {
+      sessionStorage.removeItem("rtn_admin_auth");
+      localStorage.removeItem("rtn_admin_auth_persist");
+      location.reload();
+    }
+
+    // --- Key Generator Helper ---
+    function generateCleanKeyBody() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let p1 = "", p2 = "";
+      for (let i = 0; i < 4; i++) p1 += chars.charAt(Math.floor(Math.random() * chars.length));
+      for (let i = 0; i < 4; i++) p2 += chars.charAt(Math.floor(Math.random() * chars.length));
+      return `RTN-${p1}-${p2}`;
+    }
+
+    function randomizeKeyInput() {
+      const prefix = document.getElementById("prefixSelect").value;
+      const body = generateCleanKeyBody();
+      document.getElementById("generatedKeyInput").value = `${prefix}${body}`;
+    }
+
+    function updateKeyPreview() {
+      const curr = document.getElementById("generatedKeyInput").value;
+      const prefix = document.getElementById("prefixSelect").value;
+      let body = curr;
+      for (const p of ["RATAN_VAI--", "VIP--", "RTN--", "ADMIN--"]) {
+        if (body.startsWith(p)) body = body.slice(p.length);
+      }
+      if (!body) body = generateCleanKeyBody();
+      document.getElementById("generatedKeyInput").value = `${prefix}${body}`;
+    }
+
+    function selectDurationPreset(days, btn) {
+      document.getElementById("durationSelect").value = String(days);
+      document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
+      if (btn) btn.classList.add("active");
+      updateDurationLabel();
+    }
+
+    function syncPresetButtons() {
+      const val = parseInt(document.getElementById("durationSelect").value, 10);
+      document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
+      updateDurationLabel();
+    }
+
+    function updateDurationLabel() {
+      const sel = document.getElementById("durationSelect");
+      const text = sel.options[sel.selectedIndex].text;
+      document.getElementById("selectedDaysLabel").innerText = text;
+    }
+
+    // --- Firestore API: Fetch All Documents ---
+    async function fetchFirestoreLicenses() {
+      const pill = document.getElementById("cloudStatusPill");
+      const text = document.getElementById("cloudStatusText");
+      pill.className = "status-pill syncing";
+      text.innerText = "Syncing Cloud...";
+
+      try {
+        const resp = await fetch(`${FIRESTORE_BASE_URL}?pageSize=300`, { cache: "no-store" });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        
+        const data = await resp.json();
+        const rawDocs = data.documents || [];
+
+        licensesCache = rawDocs.map(doc => {
+          const key = doc.name.split("/").pop();
+          const f = doc.fields || {};
+          const extract = (field, def) => {
+            if (!field) return def;
+            if (field.stringValue !== undefined) return field.stringValue;
+            if (field.integerValue !== undefined) return parseInt(field.integerValue, 10);
+            if (field.doubleValue !== undefined) return parseFloat(field.doubleValue);
+            if (field.booleanValue !== undefined) return field.booleanValue;
+            return def;
+          };
+
+          return {
+            key: key,
+            client_name: extract(f.client_name, "VIP Member"),
+            duration_days: extract(f.duration_days, 30),
+            created_at: extract(f.created_at, Date.now()),
+            expires_at: extract(f.expires_at, 0),
+            bound_hwid: extract(f.bound_hwid, ""),
+            status: extract(f.status, "active"),
+            activated_at: extract(f.activated_at, null),
+            device_lock: extract(f.device_lock, true)
+          };
+        });
+
+        pill.className = "status-pill";
+        text.innerText = `🟢 Cloud Connected (${licensesCache.length} Loaded)`;
+        document.getElementById("licenseCountBadge").innerText = `${licensesCache.length} loaded`;
+
+        renderStats();
+        renderTable();
+      } catch (err) {
+        console.error("Firestore fetch error:", err);
+        pill.className = "status-pill error";
+        text.innerText = "Cloud Disconnected";
+      }
+    }
+
+    // --- Deploy New License to Firestore ---
+    async function deployLicenseToCloud() {
+      const custName = document.getElementById("custNameInput").value.trim() || "VIP Member";
+      const durationDays = parseInt(document.getElementById("durationSelect").value, 10);
+      const customHwid = document.getElementById("hwidInput").value.trim();
+      let key = document.getElementById("generatedKeyInput").value.trim();
+      if (!key) {
+        randomizeKeyInput();
+        key = document.getElementById("generatedKeyInput").value.trim();
+      }
+
+      const nowMs = Date.now();
+      const isLifetime = (durationDays === -1);
+      const expMs = isLifetime ? 0 : nowMs + (durationDays * 86400000);
+
+      const payload = {
+        fields: {
+          key: { stringValue: key },
+          client_name: { stringValue: custName },
+          duration_days: { integerValue: String(durationDays) },
+          is_lifetime: { booleanValue: isLifetime },
+          created_at: { integerValue: String(nowMs) },
+          expires_at: { integerValue: String(expMs) },
+          bound_hwid: { stringValue: customHwid },
+          status: { stringValue: "active" },
+          device_lock: { booleanValue: true }
+        }
+      };
+
+      if (customHwid) {
+        payload.fields.activated_at = { integerValue: String(nowMs) };
+      }
+
+      const btn = document.getElementById("btnSubmitKey");
+      btn.disabled = true;
+      btn.innerHTML = `<span>Saving to Cloud...</span>`;
+
+      try {
+        const cleanKey = encodeURIComponent(key);
+        const url = `${FIRESTORE_BASE_URL}/${cleanKey}`;
+        const resp = await fetch(url, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+        // Also mirror to RTDB in background for redundancy
+        try {
+          fetch(`${RTDB_BASE_URL}/${cleanKey}.json`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              key: key,
+              customer: custName,
+              duration_days: durationDays,
+              is_lifetime: isLifetime,
+              expires_at_ts: expMs,
+              hwid: customHwid || "UNBOUND",
+              status: "active"
+            })
+          });
+        } catch (e) {}
+
+        // Store last generated info
+        lastGeneratedData = {
+          key: key,
+          custName: custName,
+          durationDays: durationDays,
+          isLifetime: isLifetime,
+          expMs: expMs,
+          hwid: customHwid
+        };
+
+        // Show Banner
+        document.getElementById("bannerKeyText").innerText = key;
+        document.getElementById("genSuccessBanner").style.display = "block";
+
+        // Reset inputs
+        document.getElementById("custNameInput").value = "";
+        document.getElementById("hwidInput").value = "";
+        randomizeKeyInput();
+
+        showToast(`🎉 License ${key} activated successfully!`);
+        await fetchFirestoreLicenses();
+      } catch (err) {
+        alert("Failed to save license to Cloud: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="cloud-lightning" style="width: 16px; height: 16px;"></i><span>Deploy to Cloud & Activate</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    // --- Render Table & Stats ---
+    function renderStats() {
+      const now = Date.now();
+      let active = 0, bound = 0, expired = 0, blocked = 0;
+
+      licensesCache.forEach(it => {
+        const isExp = it.expires_at > 0 && it.expires_at < now;
+        const isBlocked = (it.status === "revoked");
+        if (isBlocked) {
+          blocked++;
+        } else if (isExp) {
+          expired++;
+        } else {
+          active++;
+        }
+        if (it.bound_hwid && it.bound_hwid.trim() !== "") {
+          bound++;
+        }
+      });
+
+      document.getElementById("statTotal").innerText = licensesCache.length;
+      document.getElementById("statActive").innerText = active;
+      document.getElementById("statBound").innerText = bound;
+      document.getElementById("statExpired").innerText = expired + blocked;
+
+      // Filter Pill Counts
+      document.getElementById("fCountAll").innerText = licensesCache.length;
+      document.getElementById("fCountActive").innerText = active;
+      document.getElementById("fCountUnbound").innerText = licensesCache.filter(it => !it.bound_hwid).length;
+      document.getElementById("fCountExpired").innerText = expired;
+      document.getElementById("fCountBlocked").innerText = blocked;
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById("memberTableBody");
+      const search = (document.getElementById("memberSearch").value || "").trim().toLowerCase();
+      const now = Date.now();
+
+      let filtered = licensesCache.filter(it => {
+        const name = (it.client_name || "").toLowerCase();
+        const key = (it.key || "").toLowerCase();
+        const hwid = (it.bound_hwid || "").toLowerCase();
+
+        const match = name.includes(search) || key.includes(search) || hwid.includes(search);
+        if (!match) return false;
+
+        const isExp = it.expires_at > 0 && it.expires_at < now;
+        const isBlocked = (it.status === "revoked");
+        const isUnbound = (!it.bound_hwid || it.bound_hwid.trim() === "");
+
+        if (currentFilter === "active") return !isBlocked && !isExp;
+        if (currentFilter === "unbound") return isUnbound && !isBlocked;
+        if (currentFilter === "expired") return isExp;
+        if (currentFilter === "blocked") return isBlocked;
+        return true;
+      });
+
+      // Sort: newest first
+      filtered.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 32px;">No members found matching filter.</td></tr>`;
+        return;
+      }
+
+      let html = "";
+      filtered.forEach(it => {
+        const isExp = it.expires_at > 0 && it.expires_at < now;
+        const isBlocked = (it.status === "revoked");
+        const isLifetime = (it.expires_at === 0 || it.duration_days === -1);
+
+        let statusBadge = "";
+        if (isBlocked) {
+          statusBadge = `<span class="status-tag blocked"><i data-lucide="ban" style="width: 11px; height: 11px;"></i> Blocked</span>`;
+        } else if (isExp) {
+          statusBadge = `<span class="status-tag expired"><i data-lucide="clock" style="width: 11px; height: 11px;"></i> Expired</span>`;
+        } else {
+          statusBadge = `<span class="status-tag active"><i data-lucide="check" style="width: 11px; height: 11px;"></i> Active</span>`;
+        }
+
+        let hwidDisplay = "";
+        if (!it.bound_hwid || it.bound_hwid.trim() === "") {
+          hwidDisplay = `<span class="hwid-pill unbound">⏳ Auto-bind 1st PC</span>`;
+        } else {
+          hwidDisplay = `<span class="hwid-pill" title="Click to copy HWID" onclick="copyText('${it.bound_hwid}')">💻 ${it.bound_hwid}</span>`;
+        }
+
+        let expiryDisplay = "";
+        if (isLifetime) {
+          expiryDisplay = `<div style="font-weight: 800; color: var(--accent);">Lifetime VIP</div>`;
+        } else if (isExp) {
+          const expDate = new Date(it.expires_at).toISOString().split('T')[0];
+          expiryDisplay = `<div>${expDate}</div><span style="font-size: 10px; color: var(--accent-red); font-weight: 700;">Expired</span>`;
+        } else {
+          const daysLeft = Math.ceil((it.expires_at - now) / 86400000);
+          const expDate = new Date(it.expires_at).toISOString().split('T')[0];
+          expiryDisplay = `<div>${expDate}</div><span style="font-size: 10.5px; color: var(--accent-green); font-weight: 700;">${daysLeft} Days left</span>`;
+        }
+
+        html += `
+          <tr>
+            <td>
+              <div style="font-weight: 800; color: #fff;">${it.client_name || 'VIP Member'}</div>
+              <div style="font-size: 10.5px; color: var(--text-muted);">${new Date(it.created_at || now).toISOString().split('T')[0]}</div>
+            </td>
+            <td>
+              <span class="key-pill" onclick="copyText('${it.key}')" title="Click to copy key">
+                <span>${it.key}</span>
+                <i data-lucide="copy" style="width: 12px; height: 12px;"></i>
+              </span>
+            </td>
+            <td>${expiryDisplay}</td>
+            <td>${hwidDisplay}</td>
+            <td>${statusBadge}</td>
+            <td style="text-align: right;">
+              <div class="action-icons-wrap">
+                <button class="action-btn" onclick="copyText('${it.key}')" title="Copy License Key">
+                  <i data-lucide="copy" style="width: 13px; height: 13px;"></i>
+                </button>
+                <button class="action-btn wa" onclick="copyWhatsAppMessageFor('${it.key}')" title="Copy WhatsApp Delivery Message">
+                  <i data-lucide="message-circle" style="width: 13px; height: 13px;"></i>
+                </button>
+                <button class="action-btn" onclick="quickResetHWID('${it.key}')" title="Reset HWID (Unlock for new PC)">
+                  <i data-lucide="refresh-cw" style="width: 13px; height: 13px;"></i>
+                </button>
+                <button class="action-btn" onclick="quickExtendDays('${it.key}', 30)" title="Extend +30 Days">
+                  <i data-lucide="plus" style="width: 13px; height: 13px;"></i>
+                </button>
+                <button class="action-btn" onclick="toggleBlockLicense('${it.key}')" title="${isBlocked ? 'Unblock Member' : 'Block Member'}">
+                  <i data-lucide="${isBlocked ? 'unlock' : 'lock'}" style="width: 13px; height: 13px; color: ${isBlocked ? 'var(--accent-green)' : 'var(--accent-yellow)'};"></i>
+                </button>
+                <button class="action-btn" onclick="openEditModal('${it.key}')" title="Edit Member">
+                  <i data-lucide="edit-2" style="width: 13px; height: 13px;"></i>
+                </button>
+                <button class="action-btn danger" onclick="deleteLicense('${it.key}')" title="Delete License">
+                  <i data-lucide="trash-2" style="width: 13px; height: 13px;"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    // --- Actions: WhatsApp Delivery Message ---
+    function copyWhatsAppMessageFor(key) {
+      const it = licensesCache.find(x => x.key === key);
+      if (!it) return;
+
+      const isLifetime = (it.expires_at === 0 || it.duration_days === -1);
+      const plan = isLifetime ? "Lifetime VIP (আনলিমিটেড)" : `${it.duration_days} Days VIP`;
+      const hwidLock = it.bound_hwid ? it.bound_hwid : "প্রথমবার চালু করলে অটো লক হবে (1-PC Lock)";
+
+      const msg = 
+`👋 সালাম / Hello ${it.client_name || 'Member'}!
+🎉 আপনার RTN SUPPORT VIP লাইসেন্স সফলভাবে অ্যাক্টিভ করা হয়েছে!
+
+🔑 License Key: ${it.key}
+⏱️ মেয়াদ / Plan: ${plan}
+💻 Device Lock: ${hwidLock}
+
+📌 সফটওয়্যার চালানোর নিয়ম:
+১. "Run_RTN_SUPPORT.bat" অথবা "srBrowser.exe" চালু করুন।
+২. লগইন উইন্ডোতে ওপরের License Key টি বসিয়ে দিন।
+৩. "ACTIVATE LICENSE" বাটনে চাপ দিলেই ফুল টুলস ওপেন হয়ে যাবে!
+৪. একবার অ্যাক্টিভ করার পর আর বারবার কি দিতে হবে না।
+
+ধন্যবাদ — RATAN VAI (@ratanvai)
+অফিসিয়াল হোয়াটসঅ্যাপ গ্রুপ: https://chat.whatsapp.com/F9Jt1LIBdsoKzAWUDqRBE2`;
+
+      copyText(msg, "💬 WhatsApp Delivery Message Copied!");
+    }
+
+    function copyWhatsAppFormatForCurrent() {
+      if (lastGeneratedData) {
+        copyWhatsAppMessageFor(lastGeneratedData.key);
+      } else {
+        const key = document.getElementById("bannerKeyText").innerText;
+        copyWhatsAppMessageFor(key);
+      }
+    }
+
+    // --- Actions: Reset HWID, Extend, Toggle Block, Delete ---
+    async function quickResetHWID(key) {
+      if (!confirm(`Reset HWID for key:\n${key}\n\nThis will allow the member to bind this license to a new PC.`)) return;
+
+      try {
+        const url = `${FIRESTORE_BASE_URL}/${encodeURIComponent(key)}?updateMask.fieldPaths=bound_hwid&updateMask.fieldPaths=activated_at`;
+        const payload = {
+          fields: {
+            bound_hwid: { stringValue: "" }
+          }
+        };
+        const resp = await fetch(url, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+        showToast(`🔄 HWID Unlocked for ${key}! Ready for new PC.`);
+        await fetchFirestoreLicenses();
+      } catch (err) {
+        alert("Failed to reset HWID: " + err.message);
+      }
+    }
+
+    async function quickExtendDays(key, days) {
+      const it = licensesCache.find(x => x.key === key);
+      if (!it) return;
+
+      let base = it.expires_at > Date.now() ? it.expires_at : Date.now();
+      const newExp = base + (days * 86400000);
+
+      try {
+        const url = `${FIRESTORE_BASE_URL}/${encodeURIComponent(key)}?updateMask.fieldPaths=expires_at&updateMask.fieldPaths=status`;
+        const payload = {
+          fields: {
+            expires_at: { integerValue: String(newExp) },
+            status: { stringValue: "active" }
+          }
+        };
+        const resp = await fetch(url, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+        showToast(`➕ Added ${days} Days to ${key}!`);
+        await fetchFirestoreLicenses();
+      } catch (err) {
+        alert("Failed to extend: " + err.message);
+      }
+    }
+
+    async function toggleBlockLicense(key) {
+      const it = licensesCache.find(x => x.key === key);
+      if (!it) return;
+
+      const newStatus = (it.status === "revoked") ? "active" : "revoked";
+
+      try {
+        const url = `${FIRESTORE_BASE_URL}/${encodeURIComponent(key)}?updateMask.fieldPaths=status`;
+        const payload = {
+          fields: {
+            status: { stringValue: newStatus }
+          }
+        };
+        const resp = await fetch(url, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+        showToast(newStatus === "revoked" ? `🚫 License ${key} Blocked!` : `✅ License ${key} Activated!`);
+        await fetchFirestoreLicenses();
+      } catch (err) {
+        alert("Action failed: " + err.message);
+      }
+    }
+
+    async function deleteLicense(key) {
+      if (!confirm(`Are you sure you want to permanently delete license:\n${key}?`)) return;
+
+      try {
+        const url = `${FIRESTORE_BASE_URL}/${encodeURIComponent(key)}`;
+        const resp = await fetch(url, { method: "DELETE" });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+        showToast(`🗑️ License ${key} deleted.`);
+        await fetchFirestoreLicenses();
+      } catch (err) {
+        alert("Failed to delete: " + err.message);
+      }
+    }
+
+    // --- Edit Modal ---
+    function openEditModal(key) {
+      const it = licensesCache.find(x => x.key === key);
+      if (!it) return;
+
+      document.getElementById("editKeyHidden").value = key;
+      document.getElementById("editMemberName").value = it.client_name || "";
+      document.getElementById("editMemberHwid").value = it.bound_hwid || "";
+      document.getElementById("editMemberStatus").value = it.status || "active";
+      document.getElementById("editModal").style.display = "flex";
+    }
+
+    function closeEditModal() {
+      document.getElementById("editModal").style.display = "none";
+    }
+
+    async function saveEditMember() {
+      const key = document.getElementById("editKeyHidden").value;
+      const name = document.getElementById("editMemberName").value.trim();
+      const hwid = document.getElementById("editMemberHwid").value.trim();
+      const status = document.getElementById("editMemberStatus").value;
+
+      try {
+        const url = `${FIRESTORE_BASE_URL}/${encodeURIComponent(key)}?updateMask.fieldPaths=client_name&updateMask.fieldPaths=bound_hwid&updateMask.fieldPaths=status`;
+        const payload = {
+          fields: {
+            client_name: { stringValue: name },
+            bound_hwid: { stringValue: hwid },
+            status: { stringValue: status }
+          }
+        };
+
+        const resp = await fetch(url, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+        closeEditModal();
+        showToast("💾 Member details updated!");
+        await fetchFirestoreLicenses();
+      } catch (err) {
+        alert("Failed to save: " + err.message);
+      }
+    }
+
+    // --- Utility Functions ---
+    function setFilter(filter, btn) {
+      currentFilter = filter;
+      document.querySelectorAll(".filter-pill").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderTable();
+    }
+
+    function toggleDensity() {
+      isCompact = !isCompact;
+      const wrapper = document.getElementById("tableWrapper");
+      const btnText = document.getElementById("densityText");
+      if (isCompact) {
+        wrapper.classList.add("compact-mode");
+        btnText.innerText = "Comfortable";
+      } else {
+        wrapper.classList.remove("compact-mode");
+        btnText.innerText = "Compact";
+      }
+    }
+
+    function copyText(str, toast = `📋 Copied to Clipboard!`) {
+      if (!str) return;
+      navigator.clipboard.writeText(str).then(() => {
+        showToast(toast);
+      }).catch(() => {
+        prompt("Copy text:", str);
+      });
+    }
+
+    function copyBannerKey() {
+      const k = document.getElementById("bannerKeyText").innerText;
+      copyText(k, `🔑 Key Copied: ${k}`);
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById("toastBox");
+      document.getElementById("toastMsg").innerText = msg;
+      box.classList.add("show");
+      setTimeout(() => box.classList.remove("show"), 3200);
+    }
+
+    function exportCSV() {
+      if (licensesCache.length === 0) {
+        alert("No licenses to export!");
+        return;
+      }
+
+      let csv = "License Key,Member Name,Duration Days,Expiry Date,HWID,Status,Created Date\n";
+      licensesCache.forEach(it => {
+        const exp = it.expires_at === 0 ? "Lifetime VIP" : new Date(it.expires_at).toISOString().split('T')[0];
+        const created = new Date(it.created_at || Date.now()).toISOString().split('T')[0];
+        csv += `"${it.key}","${it.client_name || ''}","${it.duration_days}","${exp}","${it.bound_hwid || ''}","${it.status}","${created}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `RTN_SUPPORT_Members_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast("📥 CSV Exported Successfully!");
+    }
+
+    // --- Dashboard Initializer ---
+    function initDashboard() {
+      lucide.createIcons();
+      randomizeKeyInput();
+      updateDurationLabel();
+      fetchFirestoreLicenses();
+
+      // Auto sync every 12 seconds
+      setInterval(fetchFirestoreLicenses, 12000);
+    }
+
+    // Startup
+    window.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      checkAdminAuth();
+    });
+  </script>
+</body>
+</html>
